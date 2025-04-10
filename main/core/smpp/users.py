@@ -77,6 +77,12 @@ class Users(object):
                 'users': [u for u in users if u]
             }
 
+    def create_multiple(self, data):
+        # you have data['gid'] and data['data'] 
+        # data looks like this: USER1;USER2;USER3;USER4;USER5;USER6
+        # For every USERX, set uid to USERX, gid to gid, username to random string and password to random string
+        pass
+
     def create(self, data):
         """Create a User.
         Required parameters: username, password, uid (user identifier), gid (group identifier),

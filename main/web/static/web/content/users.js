@@ -1,7 +1,7 @@
 (function($){
     var local_path = window.location.pathname, csrfmiddlewaretoken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
-    var add_modal_form = "#add_modal_form", edit_modal_form = "#edit_modal_form", service_modal_form = "#service_modal_form";
-    var variant_boxes = [add_modal_form, edit_modal_form, service_modal_form];
+    var add_modal_form = "#add_modal_form", edit_modal_form = "#edit_modal_form", service_modal_form = "#service_modal_form", add_multiple_modal_form = "#add_multiple_modal_form";
+    var variant_boxes = [add_modal_form, edit_modal_form, service_modal_form, add_multiple_modal_form];
     var USERS_DICT = {}, GROUPS_DICT = {};
     var collectionlist_check = function(){
         $.ajax({
@@ -46,6 +46,9 @@
         if (cmd == "add") {
             showThisBox(variant_boxes, add_modal_form);
             $("#collection_modal").modal("show");
+        } else if (cmd == "multiple") {
+            showThisBox(variant_boxes, add_multiple_modal_form);
+            $("#multiple_modal").modal("show");
         } else if (cmd == "edit") {
             var data = USERS_DICT[index];
             $(edit_modal_form+" input[name=username]").val(data.username);
@@ -136,6 +139,7 @@
     }
     collection_manage("groups");
     $("#add_new_obj").on('click', function(e){collection_manage('add');});
+    $("#add_mult_obj").on('click', function(e){collection_manage('multiple');});
     $(add_modal_form+","+edit_modal_form+","+service_modal_form).on("submit", function(e){
         e.preventDefault();
         var serializeform = $(this).serialize();
