@@ -11,7 +11,10 @@ from django.shortcuts import render, HttpResponse
 def submit_logs_view(request):
     collection_list = SubmitLog.objects.all().order_by("-created_at")
     collection_list = paginate(collection_list, per_page=25, page=request.GET.get("page"))
-    return render(request, "web/content/submit_logs.html", dict(collection_list=collection_list))
+    total_count = sum(collection_list)
+    success_count = sum(1 for item in collection_list if item.status == "success")
+    failure_count = sum(1 for item in collection_list if item.status == "failed")
+    return render(request, "web/content/submit_logs.html", dict(collection_list=collection_list,total_count=total_count,success_count=success_count,failure_count=failure_count))
 
 
 @login_required
