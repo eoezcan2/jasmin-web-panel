@@ -77,6 +77,30 @@ class Users(object):
                 'users': [u for u in users if u]
             }
 
+    def create_multiple(self, data):
+        # Validate input
+        if 'users' not in data or 'gid' not in data:
+            raise MissingKeyError('Missing parameter: users and/or gid required')
+        
+        created_users = []
+        gid = data['gid']
+
+        print(f"Creating users with gid: {gid}")
+        
+        for uid in data['users']:
+            username = uid.lower()
+            password = f"{username}1234"
+            user_data = {
+                'uid': uid,
+                'gid': gid,
+                'username': username,
+                'password': password
+            }
+            created_user = self.create(user_data)
+            created_users.append(created_user)
+        
+        return {'users': created_users}
+
     def create(self, data):
         """Create a User.
         Required parameters: username, password, uid (user identifier), gid (group identifier),

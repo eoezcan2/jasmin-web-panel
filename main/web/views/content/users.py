@@ -20,12 +20,31 @@ def users_view_manage(request):
     users = None
     if request.POST and request.is_ajax():
         s = request.POST.get("s")
-        if s in ['list', 'add', 'edit', 'delete', 'enable', 'disable', 'smpp_unbind', 'smpp_ban']:
+        if s in ['list', 'multiple', 'add', 'edit', 'delete', 'enable', 'disable', 'smpp_unbind', 'smpp_ban']:
             users = Users(telnet=request.telnet)
         if users:
             if s == "list":
                 args = users.list()
                 res_status, res_message = 200, _("OK")
+            elif s == "multiple":
+                try:
+                    print(request.POST)
+                    raw_data = request.POST.get("data")  # "USER1;USER2"
+                    gid = request.POST.get("gid")
+                    
+                    if not raw_data or not gid:
+                        raise ValueError("Missing 'data' or 'gid' parameter")
+
+                    user_list = [u.strip() for u in raw_data.split(';') if u.strip()]
+                    data = {
+                        "users": user_list,
+                        "gid": gid
+                    }
+
+                    users.create_multiple(data)
+                    res_status, res_message = 200, _("Users added successfully!")
+                except Exception as e:
+                    res_status, res_message = 400, str(e)
             elif s == "add":
                 try:
                     users.create(data=dict(

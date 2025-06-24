@@ -1,7 +1,7 @@
 (function($){
     var local_path = window.location.pathname, csrfmiddlewaretoken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
-    var add_modal_form = "#add_modal_form", edit_modal_form = "#edit_modal_form", service_modal_form = "#service_modal_form";
-    var variant_boxes = [add_modal_form, edit_modal_form, service_modal_form];
+    var add_modal_form = "#add_modal_form", edit_modal_form = "#edit_modal_form", service_modal_form = "#service_modal_form", add_multiple_modal_form = "#add_multiple_modal_form";
+    var variant_boxes = [add_modal_form, edit_modal_form, service_modal_form, add_multiple_modal_form];
     var USERS_DICT = {}, GROUPS_DICT = {};
     var collectionlist_check = function(){
         $.ajax({
@@ -46,6 +46,30 @@
         if (cmd == "add") {
             showThisBox(variant_boxes, add_modal_form);
             $("#collection_modal").modal("show");
+        } else if (cmd == "multiple") {
+            $.ajax({
+                url: main_trans.url2groups,
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: csrfmiddlewaretoken,
+                    s: "list",
+                },
+                dataType: "json",
+                success: function(data){
+                    var datalist = data["groups"];
+                    var html = $.map(datalist, function(val, i){
+                        GROUPS_DICT[i+1] = val;
+                        console.log(val);
+                        return `<option value="${val.name}">${val.name}</option>`;
+                    });
+                    $(add_multiple_modal_form+" select[name=gid]").html(html);
+                    showThisBox(variant_boxes, add_multiple_modal_form);
+                    $("#multiple_modal").modal("show");
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.error("Failed to load groups.", {closeButton: true});
+                }
+            });
         } else if (cmd == "edit") {
             var data = USERS_DICT[index];
             $(edit_modal_form+" input[name=username]").val(data.username);
@@ -126,9 +150,10 @@
                     var datalist = data["groups"];
                     var html = $.map(datalist, function(val, i){
                         GROUPS_DICT[i+1] = val;
-                        return `<option>${val.name}</option>`;
+                        return `<option value="${val.name}">${val.name}</option>`; // ✅ Now gid will be submitted
                     });
                     $(add_modal_form+" select[name=gid]").html(html);
+                    $(add_multiple_modal_form+" select[name=gid]").html(html);
                     $(edit_modal_form+" select[name=gid]").html(html);
                 }
             })
@@ -136,6 +161,7 @@
     }
     collection_manage("groups");
     $("#add_new_obj").on('click', function(e){collection_manage('add');});
+    $("#add_mult_obj").on('click', function(e){collection_manage('multiple');});
     $(add_modal_form+","+edit_modal_form+","+service_modal_form).on("submit", function(e){
         e.preventDefault();
         var serializeform = $(this).serialize();
@@ -158,6 +184,36 @@
 				inputs.prop("disabled", false);
 			}
 		});
+    });
+    $(add_multiple_modal_form).on("submit", function(e){
+        e.preventDefault();
+        var inputs = $(this).find("input, select, button, textarea");
+        var usersData = $(this).find("textarea[name=data]").val();  // Semicolon-separated users
+        var gid = $(this).find("select[name=gid]").val();
+
+        $.ajax({
+            type: "POST",
+            url: $(this).attr("action"),
+            data: {
+                csrfmiddlewaretoken: csrfmiddlewaretoken,
+                s: "multiple",
+                data: usersData,
+                gid: gid
+            },
+            beforeSend: function(){inputs.prop("disabled", true);},
+            success: function(data){
+                toastr.success(data["message"], {closeButton: true, progressBar: true});
+                inputs.prop("disabled", false);
+                $(".modal").modal("hide");
+                collectionlist_check();
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                let message = jqXHR.responseText;
+                try { message = JSON.parse(jqXHR.responseText)["message"]; } catch (e) {}
+                toastr.error(message, {closeButton: true, progressBar: true});
+                inputs.prop("disabled", false);
+            }
+        });
     });
     $("li.nav-item.users-menu").addClass("active");
 })(jQuery);
