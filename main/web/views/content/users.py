@@ -28,10 +28,23 @@ def users_view_manage(request):
                 res_status, res_message = 200, _("OK")
             elif s == "multiple":
                 try:
-                    users.create_multiple(data=request.POST.get("data"))
-                    res_status, res_message = 200, _("User added successfully!")
+                    print(request.POST)
+                    raw_data = request.POST.get("data")  # "USER1;USER2"
+                    gid = request.POST.get("gid")
+                    
+                    if not raw_data or not gid:
+                        raise ValueError("Missing 'data' or 'gid' parameter")
+
+                    user_list = [u.strip() for u in raw_data.split(';') if u.strip()]
+                    data = {
+                        "users": user_list,
+                        "gid": gid
+                    }
+
+                    users.create_multiple(data)
+                    res_status, res_message = 200, _("Users added successfully!")
                 except Exception as e:
-                    res_message = e
+                    res_status, res_message = 400, str(e)
             elif s == "add":
                 try:
                     users.create(data=dict(
