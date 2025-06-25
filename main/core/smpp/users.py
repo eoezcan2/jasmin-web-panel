@@ -6,6 +6,7 @@ from main.core.exceptions import (JasminSyntaxError, JasminError,
                         ObjectNotFoundError)
 
 import logging
+import re
 
 STANDARD_PROMPT = settings.STANDARD_PROMPT
 INTERACTIVE_PROMPT = settings.INTERACTIVE_PROMPT
@@ -88,10 +89,12 @@ class Users(object):
         print(f"Creating users with gid: {gid}")
         
         for uid in data['users']:
-            username = uid.lower()
+            # Remove all non-alphanumeric characters
+            clean_uid = re.sub(r'[^A-Za-z0-9]', '', uid)
+            username = clean_uid.lower()
             password = f"{username}1234"
             user_data = {
-                'uid': uid,
+                'uid': clean_uid,
                 'gid': gid,
                 'username': username,
                 'password': password
@@ -100,6 +103,7 @@ class Users(object):
             created_users.append(created_user)
         
         return {'users': created_users}
+
 
     def create(self, data):
         """Create a User.
