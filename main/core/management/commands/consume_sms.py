@@ -25,20 +25,18 @@ class Command(BaseCommand):
             blocked_connection_timeout=30
         )
 
-        connection = pika.BlockingConnection(
-            parameters=parameters
-        )
+        connection = pika.BlockingConnection(parameters=parameters)
 
         self.stdout.write("Connected to RabbitMQ")
 
         channel = connection.channel()
-        #channel.queue_declare(queue=settings.RABBITMQ_QUEUE)
+        channel.queue_declare(queue=settings.RABBITMQ_QUEUE)
 
         def callback(ch, method, properties, body):
             try:
                 message = json.loads(body)
                 self.stdout.write(f"Received message: {message}")
-                if message['type'] == 'deliver_sm':
+                if message['type'] == 'submit.sm.testcon':
                     print("Received MO:", message['content'])
                     self.forward_to_provider(message['content'])
             except Exception as e:
@@ -48,7 +46,9 @@ class Command(BaseCommand):
             queue=settings.RABBITMQ_QUEUE, on_message_callback=callback, auto_ack=True
         )
 
+        self.stdout.write(f"Waiting for messages on queue: {settings.RABBITMQ_QUEUE}")
         channel.start_consuming()
+
 
     def forward_to_provider(self, mo_message):
         self.stdout.write(f"Forwarding MO message: {mo_message}")

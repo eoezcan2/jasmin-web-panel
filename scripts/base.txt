@@ -31,3 +31,4 @@ pytz
 gunicorn
 requests
 pika
+smpplib
