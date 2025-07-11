@@ -27,3 +27,7 @@ xlrd
 xlwt
 zipp
 pytz
+
+gunicorn
+requests
+pika

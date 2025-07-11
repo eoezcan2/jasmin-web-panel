@@ -14,9 +14,9 @@
     <li class="nav-item smppccm-menu">
         <a class="nav-link" href="{% url 'web:smppccm_view' %}"><i class="fas fa-fw fa-atom"></i><span>{% trans 'SMPPCCM' %}</span></a>
     </li>
-    <!-- <li class="nav-item httpccm-menu">
+    <li class="nav-item httpccm-menu">
         <a class="nav-link" href="{% url 'web:httpccm_view' %}"><i class="fas fa-fw fa-atom"></i><span>{% trans 'HTTPCCM' %}</span></a>
-    </li> -->
+    </li>
 
     <hr class="sidebar-divider">
 
@@ -38,9 +38,9 @@
         <a class="nav-link" href="{% url 'web:mtrouter_view' %}"><i class="fas fa-fw fa-cloud-download-alt"></i><span>{% trans 'MT Router' %}</span></a>
     </li>
 
-    <!-- <li class="nav-item morouter-menu">
+    <li class="nav-item morouter-menu">
         <a class="nav-link" href="{% url 'web:morouter_view' %}"><i class="fas fa-fw fa-cloud-upload-alt"></i><span>{% trans 'MO Router' %}</span></a>
-    </li> -->
+    </li>
     {% if SETTINGS.SUBMIT_LOG %}
     <hr class="sidebar-divider d-none d-md-block">
 

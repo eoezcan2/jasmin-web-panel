@@ -1,5 +1,1 @@
 -r scripts/development.txt
-
-gunicorn
-requests
-pika

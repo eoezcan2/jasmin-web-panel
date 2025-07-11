@@ -153,9 +153,13 @@ REDIS_URL = (REDIS_HOST, REDIS_PORT)
 
 ##############
 # settings.py
-RABBITMQ_HOST = 'rabbit-mq'
-RABBITMQ_QUEUE = 'deliver_sm'
-PROVIDER_URL = 'http://localhost:9000/incoming-sms'
+RABBITMQ_USER = os.environ.get("RABBITMQ_USER", "guest")
+RABBITMQ_PASS = os.environ.get("RABBITMQ_PASS", "guest")
+RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "localhost")
+RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
+RABBITMQ_QUEUE = os.environ.get("RABBITMQ_QUEUE", "deliver_sm")  # optional
+PROVIDER_URL = os.environ.get("PROVIDER_URL", "http://placeholder-provider/api")
+
 ##############
 
 DEFAULT_USER_AVATAR = STATIC_URL + "assets/img/user.png"
