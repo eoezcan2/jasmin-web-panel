@@ -1,31 +1,29 @@
 from django.core.management.base import BaseCommand
+import smpplib.client
+import smpplib.consts
 
 class Command(BaseCommand):
     help = "Test sending SMS via Jasmin"
 
     def handle(self, *args, **kwargs):
-        # send_sms.py
-        import smpplib.client
-        import smpplib.consts
-        import smpplib.gsm
 
-        client = smpplib.client.Client('localhost', 2775)  # Jasmin IP/port
-
+        client = smpplib.client.Client('localhost', 2775)
         client.connect()
-        client.bind_transmitter(system_id='test', password='test')  # match Jasmin user/pass
+        client.bind_transceiver(system_id='test', password='test')
 
-        pdu = client.send_message(
-            source_addr_ton=smpplib.consts.SMPP_TON_ALNUM,
-            source_addr_npi=smpplib.consts.SMPP_NPI_UNK,
-            source_addr='Test',
+        client.send_message(
+            source_addr='491234567890',
+            destination_addr='Test',
+            short_message='This is an MO message'.encode('latin1'),
 
-            dest_addr_npi=smpplib.consts.SMPP_NPI_ISDN,
-            destination_addr='491234567890',
+            source_addr_ton=1,  # SMPP_TON_INTL
+            source_addr_npi=1,  # SMPP_NPI_ISDN
 
-            short_message='Hello from your local test!'.encode('latin-1'),
-            data_coding=0x03,  # Latin-1
-            esm_class=0x00,
+            dest_addr_ton=5,    # SMPP_TON_ALNUM
+            dest_addr_npi=0,    # SMPP_NPI_UNKNOWN
+
+            data_coding=3,
+            esm_class=0
         )
 
-        print("Message sent:", pdu.sequence)
         client.unbind()

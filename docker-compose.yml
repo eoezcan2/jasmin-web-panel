@@ -139,35 +139,7 @@ services:
           memory: ${GRAFANA_MEM}
     security_opt:
       - no-new-privileges:true
-    
-  sms-consumer:
-    build:
-      context: .
-      dockerfile: config/docker/slim/Dockerfile
-    image: jasmin-web:latest  # same image as your web app
-    container_name: sms-consumer
-    env_file:
-      - .env
-    command: python manage.py consume_sms
-    depends_on:
-      rabbit-mq:
-        condition: service_healthy
-      jasmin-web:
-        condition: service_started
-    environment:
-      DEBUG: "${DEBUG}"
-      DJANGO_SETTINGS_MODULE: "${DJANGO_SETTINGS_MODULE}"
-      ALLOWED_HOSTS: "${ALLOWED_HOSTS}"
-      PRODB_URL: "${PRODB_URL}"
-      REDIS_URI: "${REDIS_URI}"
-      TELNET_HOST: "${TELNET_HOST}"
-      SUBMIT_LOG: "${SUBMIT_LOG}"
-      RABBITMQ_HOST: rabbit-mq
-      RABBITMQ_PORT: 5672
-    volumes:
-      - .:/app
-      - /app/env
-    restart: unless-stopped
+
 
 volumes:
   static_volume:

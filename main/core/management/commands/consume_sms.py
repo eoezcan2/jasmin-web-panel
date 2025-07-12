@@ -9,8 +9,9 @@ class Command(BaseCommand):
     help = "Consume MO messages from Jasmin and forward to HTTP provider"
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("Starting RabbitMQ consumer...")
+        self.stdout.write("| Starting RabbitMQ consumer...")
 
+        # Connect to RabbitMQ
         credentials = pika.PlainCredentials(
             settings.RABBITMQ_USER,
             settings.RABBITMQ_PASS
@@ -21,40 +22,48 @@ class Command(BaseCommand):
             port=settings.RABBITMQ_PORT,
             virtual_host="/",
             credentials=credentials,
-            heartbeat=60,  # Optional: helps with stability
+            heartbeat=60,
             blocked_connection_timeout=30
         )
 
-        connection = pika.BlockingConnection(parameters=parameters)
-
-        self.stdout.write("Connected to RabbitMQ")
-
+        connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
+
+        self.stdout.write("| Connected to RabbitMQ")
+        self.stdout.write(f"| Listening on queue: {settings.RABBITMQ_QUEUE}")
+
         channel.queue_declare(queue=settings.RABBITMQ_QUEUE)
 
         def callback(ch, method, properties, body):
             try:
                 message = json.loads(body)
-                self.stdout.write(f"Received message: {message}")
-                if message['type'] == 'submit.sm.testcon':
-                    print("Received MO:", message['content'])
+                self.stdout.write(f"| Received message: {message}")
+
+                if message.get('type') == 'deliver_sm':
+                    self.stdout.write("| MO message matched")
                     self.forward_to_provider(message['content'])
+                else:
+                    self.stdout.write(f"| Skipped non-MO message type: {message.get('type')}")
+
             except Exception as e:
-                print("Error:", str(e))
+                self.stderr.write(f"| Error handling message: {str(e)}")
 
         channel.basic_consume(
-            queue=settings.RABBITMQ_QUEUE, on_message_callback=callback, auto_ack=True
+            queue=settings.RABBITMQ_QUEUE,
+            on_message_callback=callback,
+            auto_ack=True
         )
 
-        self.stdout.write(f"Waiting for messages on queue: {settings.RABBITMQ_QUEUE}")
         channel.start_consuming()
 
-
     def forward_to_provider(self, mo_message):
-        self.stdout.write(f"Forwarding MO message: {mo_message}")
-        # url = settings.PROVIDER_URL
-        # try:
-        #     r = requests.post(url, json=mo_message)
-        #     print(f"Forwarded: {r.status_code}")
-        # except Exception as e:
-        #     print(f"Forwarding error: {e}")
+        self.stdout.write(f"| Forwarding to HTTP provider: {mo_message}")
+
+        # Placeholder URL
+        url = "http://httpbin.org/post"
+
+        try:
+            response = requests.post(url, json=mo_message)
+            self.stdout.write(f"| Forwarded with status {response.status_code}")
+        except Exception as e:
+            self.stderr.write(f"| Forwarding failed: {e}")
