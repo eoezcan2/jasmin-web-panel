@@ -1,6 +1,7 @@
 import pika
 import json
 import requests
+import pickle
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
@@ -11,7 +12,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("| Starting RabbitMQ consumer...")
 
-        # Connect to RabbitMQ
         credentials = pika.PlainCredentials(
             settings.RABBITMQ_USER,
             settings.RABBITMQ_PASS
@@ -32,21 +32,27 @@ class Command(BaseCommand):
         self.stdout.write("| Connected to RabbitMQ")
         self.stdout.write(f"| Listening on queue: {settings.RABBITMQ_QUEUE}")
 
-        channel.queue_declare(queue=settings.RABBITMQ_QUEUE)
+        channel.queue_declare(queue=settings.RABBITMQ_QUEUE, durable=False)
 
         def callback(ch, method, properties, body):
             try:
-                message = json.loads(body)
-                self.stdout.write(f"| Received message: {message}")
+                decoded = body.decode('utf-8', errors='ignore').strip()
+                if not decoded:
+                    self.stderr.write("Skipping empty message body")
+                    return
+
+                self.stdout.write(f"Decoded body: {decoded}")
+                message = json.loads(decoded)
 
                 if message.get('type') == 'deliver_sm':
-                    self.stdout.write("| MO message matched")
+                    self.stdout.write("Received MO message")
                     self.forward_to_provider(message['content'])
                 else:
-                    self.stdout.write(f"| Skipped non-MO message type: {message.get('type')}")
+                    self.stdout.write(f"Skipped non-MO message: {message.get('type')}")
 
             except Exception as e:
-                self.stderr.write(f"| Error handling message: {str(e)}")
+                self.stderr.write(f"Error handling message: {e}")
+
 
         channel.basic_consume(
             queue=settings.RABBITMQ_QUEUE,
@@ -54,13 +60,16 @@ class Command(BaseCommand):
             auto_ack=True
         )
 
-        channel.start_consuming()
+        try:
+            channel.start_consuming()
+        except KeyboardInterrupt:
+            channel.stop_consuming()
+        connection.close()
 
     def forward_to_provider(self, mo_message):
         self.stdout.write(f"| Forwarding to HTTP provider: {mo_message}")
 
-        # Placeholder URL
-        url = "http://httpbin.org/post"
+        url = "http://placeholder.com/api"
 
         try:
             response = requests.post(url, json=mo_message)
