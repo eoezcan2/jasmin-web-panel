@@ -93,6 +93,9 @@ services:
           memory: ${JASMIN_MEM}
     security_opt:
       - no-new-privileges:true
+    volumes:
+        - ./jasmin-scripts:/opt/jasmin-scripts  # ✅ Map scripts folder
+        - jasmin-data:/etc/jasmin              # Persistent configs
 
   prometheus:
     image: prom/prometheus:latest
@@ -147,3 +150,4 @@ volumes:
   logs_volume:
   pg_data:
   monitoring_data:
+  jasmin-data:
