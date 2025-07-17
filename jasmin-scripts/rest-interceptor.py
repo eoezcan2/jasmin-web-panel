@@ -1,34 +1,44 @@
 import requests
 import logging
 
-def mt_interceptor(smpp, routable, **kwargs):
-    try:
-        # Extract actual SMPP message details from routable
-        data = {
-            "source_addr": routable.pdu.params.get('source_addr', b'').decode('utf-8', errors='ignore'),
-            "destination_addr": routable.pdu.params.get('destination_addr', b'').decode('utf-8', errors='ignore'),
-            "short_message": routable.pdu.params.get('short_message', b'').decode('utf-8', errors='ignore')
-        }
+logger = logging.getLogger('jasmin-interceptor')
+# handler = logging.FileHandler('mt_interceptor.log')
+handler = logging.FileHandler('/var/log/jasmin/mt_interceptor.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
 
-        url = 'http://host.docker.internal:8001/inbound'  # ✅ Works in Docker for local service
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, json=data, headers=headers, timeout=3)
+try:
+    logger.debug("Test")
+    print("Test")
+    # Extract actual SMPP message details from routable
+    data = {
+        "source_addr": routable.pdu.params.get('source_addr', b'').decode('utf-8', errors='ignore'),
+        "destination_addr": routable.pdu.params.get('destination_addr', b'').decode('utf-8', errors='ignore'),
+        "short_message": routable.pdu.params.get('short_message', b'').decode('utf-8', errors='ignore')
+    }
 
-        # Logging
-        logger = logging.getLogger('jasmin-interceptor')
-        if not logger.handlers:
-            handler = logging.FileHandler('/var/log/jasmin/mt_interceptor.log')
-            formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-            logger.setLevel(logging.DEBUG)
+    ###############
+    # data = {
+    #     "source_addr": "123456",
+    #     "destination_addr": "654321",
+    #     "short_message": "This is a test message"
+    # }
+    ###############
 
-        if response.status_code == 200:
-            logger.info(f"POST successful: {response.text}")
-        else:
-            logger.error(f"POST failed [{response.status_code}]: {response.text}")
+    url = 'http://192.168.0.166:8001/inbound'
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, json=data, headers=headers, timeout=3)
+    logger.debug("Request")
 
-    except Exception as e:
-        logger.error(f"Interceptor error: {str(e)}")
+    if response.status_code == 200:
+        print("200")
+        logger.debug(f"POST successful: {response.text}")
+    else:
+        print("Bad")
+        logger.error(f"POST failed [{response.status_code}]: {response.text}")
 
-    return routable  # Important: continue routing
+except Exception as e:
+    print("Error")
+    logger.error(f"Interceptor error: {str(e)}")
