@@ -143,18 +143,17 @@ services:
       - no-new-privileges:true
   fastapi:
     build:
-      context: ./aws-rest-api   # ✅ Your FastAPI app directory
+      context: ./aws-rest-api
       dockerfile: Dockerfile
-    container_name: fastapi-service
+    container_name: fastapi
     restart: unless-stopped
+    env_file:
+      - ./aws-rest-api/.env
     ports:
-      - "8001:8001"             # ✅ Expose FastAPI on port 8001
-    environment:
-      - PYTHONUNBUFFERED=1
+      - "${AWS_REST_PORT}:8001"
     volumes:
-      - ./aws-rest-api:/app     # ✅ Hot-reload code
-    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-
+      - ./aws-rest-api:/app
+    command: uvicorn main:app --host 0.0.0.0 --port ${AWS_REST_PORT}
 
 volumes:
   static_volume:

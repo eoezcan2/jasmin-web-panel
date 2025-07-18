@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
             dest_addr_ton=5,
             dest_addr_npi=0,
-            destination_addr="+436605772907",
+            destination_addr="",
 
             short_message=random_string(10).encode('latin1'),
             data_coding=3,
