@@ -27,7 +27,8 @@ try:
     # }
     ###############
 
-    url = 'http://192.168.0.166:8001/inbound'
+    # localhost not working in docker
+    url = 'http://172.17.0.1:8001/inbound'
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=data, headers=headers, timeout=3)
     logger.debug("Request")

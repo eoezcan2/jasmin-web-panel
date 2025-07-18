@@ -120,7 +120,6 @@ services:
           memory: ${PROMETHEUS_MEM}
     security_opt:
       - no-new-privileges:true
-
   grafana:
     image: grafana/grafana
     restart: unless-stopped
@@ -142,6 +141,19 @@ services:
           memory: ${GRAFANA_MEM}
     security_opt:
       - no-new-privileges:true
+  fastapi:
+    build:
+      context: ./aws-rest-api   # ✅ Your FastAPI app directory
+      dockerfile: Dockerfile
+    container_name: fastapi-service
+    restart: unless-stopped
+    ports:
+      - "8001:8001"             # ✅ Expose FastAPI on port 8001
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./aws-rest-api:/app     # ✅ Hot-reload code
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 
 
 volumes:

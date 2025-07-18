@@ -21,13 +21,13 @@ class Command(BaseCommand):
         pdu = client.send_message(
             source_addr_ton=1,
             source_addr_npi=1,
-            source_addr=random_string(6),
+            source_addr="TestSender",
 
             dest_addr_ton=5,
             dest_addr_npi=0,
-            destination_addr=random_string(6),
+            destination_addr="+436605772907",
 
-            short_message='This is an MT message'.encode('latin1'),
+            short_message=random_string(10).encode('latin1'),
             data_coding=3,
             esm_class=0x00,
         )
