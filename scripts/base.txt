@@ -32,4 +32,3 @@ gunicorn
 requests
 pika
 smpplib
-pickle5

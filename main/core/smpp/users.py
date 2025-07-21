@@ -92,7 +92,7 @@ class Users(object):
             # Remove all non-alphanumeric characters
             clean_uid = re.sub(r'[^A-Za-z0-9]', '', uid)
             username = clean_uid.lower()
-            password = f"{username}1234"
+            password = "user"
             user_data = {
                 'uid': clean_uid,
                 'gid': gid,
