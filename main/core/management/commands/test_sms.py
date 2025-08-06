@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = "Simulate MO message via SMPP to Jasmin"
 
     def handle(self, *args, **kwargs):
-        client = smpplib.client.Client('91.218.66.233', 2775)
+        client = smpplib.client.Client('localhost', 2775)
 
         # Optional: enable debug output
         client.set_message_received_handler(lambda pdu: print("Received PDU:", pdu))
@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
             dest_addr_ton=5,
             dest_addr_npi=0,
-            destination_addr="+4369914070666",
+            destination_addr="393277652065",
 
             short_message=random_string(10).encode('latin1'),
             data_coding=3,

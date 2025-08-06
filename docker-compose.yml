@@ -47,11 +47,6 @@ services:
     restart: unless-stopped
     healthcheck:
       test: redis-cli ping | grep PONG
-    deploy:
-      resources:
-        limits:
-          cpus: "${REDIS_CPU}"
-          memory: ${REDIS_MEM}
     security_opt:
       - no-new-privileges:true
 
@@ -63,11 +58,6 @@ services:
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-    deploy:
-      resources:
-        limits:
-          cpus: "${RABBITMQ_CPU}"
-          memory: ${RABBITMQ_MEM}
     security_opt:
       - no-new-privileges:true
 
@@ -86,11 +76,6 @@ services:
     environment:
       REDIS_CLIENT_HOST: redis
       AMQP_BROKER_HOST: rabbit-mq
-    deploy:
-      resources:
-        limits:
-          cpus: "${JASMIN_CPU}"
-          memory: ${JASMIN_MEM}
     security_opt:
       - no-new-privileges:true
     volumes:
@@ -113,11 +98,6 @@ services:
       - '--web.enable-lifecycle'
     depends_on:
       - jasmin
-    deploy:
-      resources:
-        limits:
-          cpus: "${PROMETHEUS_CPU}"
-          memory: ${PROMETHEUS_MEM}
     security_opt:
       - no-new-privileges:true
   grafana:
@@ -134,13 +114,9 @@ services:
       - monitoring_data:/var/lib/grafana
     depends_on:
       - prometheus
-    deploy:
-      resources:
-        limits:
-          cpus: "${GRAFANA_CPU}"
-          memory: ${GRAFANA_MEM}
     security_opt:
       - no-new-privileges:true
+
   fastapi:
     build:
       context: ./aws-rest-api

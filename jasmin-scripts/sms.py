@@ -10,28 +10,21 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 try:
+    logger.debug(f"Data extracted: {routable.pdu.params}")
+
     logger.debug("Test")
     print("Test")
-    # Extract actual SMPP message details from routable
+
     data = {
         "source_addr": routable.pdu.params.get('source_addr', b'').decode('utf-8', errors='ignore'),
         "destination_addr": routable.pdu.params.get('destination_addr', b'').decode('utf-8', errors='ignore'),
         "short_message": routable.pdu.params.get('short_message', b'').decode('utf-8', errors='ignore')
     }
 
-    ###############
-    # data = {
-    #     "source_addr": "123456",
-    #     "destination_addr": "654321",
-    #     "short_message": "This is a test message"
-    # }
-    ###############
-
-    # localhost not working in docker
-    url = 'http://172.17.0.1:8001/inbound'
+    url = 'http://172.17.0.1:8001/send'
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=data, headers=headers, timeout=3)
-    logger.debug("Request")
+    logger.debug("SMS Interceptor: Request")
 
     if response.status_code == 200:
         print("200")

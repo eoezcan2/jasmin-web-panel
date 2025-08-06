@@ -1,0 +1,5 @@
+{'service_type': b'', 'source_addr_ton': <AddrTon.INTERNATIONAL: 2>, 'source_addr_npi': <AddrNpi.ISDN: 2>, 'source_addr': b'TestSender', 'dest_addr_ton': <AddrTon.ALPHANUMERIC: 6>, 'dest_addr_npi': <AddrNpi.UNKNOWN: 1>, 'destination_addr': b'+436605772907', 'esm_class': EsmClass[mode: EsmClassMode.DEFAULT, type: EsmClassType.DEFAULT, gsmFeatures: set()
+    ], 'protocol_id': 0, 'priority_flag': <PriorityFlag.LEVEL_0: 1>, 'schedule_delivery_time': None, 'validity_period': None, 'registered_delivery': RegisteredDelivery[receipt: RegisteredDeliveryReceipt.NO_SMSC_DELIVERY_RECEIPT_REQUESTED, smeOriginatedAcks: set(), intermediateNotification: False
+    ], 'replace_if_present_flag': <ReplaceIfPresentFlag.DO_NOT_REPLACE: 1>, 'data_coding': DataCoding[scheme: DataCodingScheme.DEFAULT, schemeData: DataCodingDefault.LATIN_1
+    ], 'sm_default_msg_id': 0, 'short_message': b'2CycumCZX7'
+}
